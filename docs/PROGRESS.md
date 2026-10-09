@@ -1,5 +1,12 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — Domain custom
+
+- `https://prep-truth.ricothen.com` live: domain di-assign ke project (`vercel domains
+  add <domain> <project>`) + alias produksi; terverifikasi 200 + `/api/llm` fallback
+  offline. Catatan: alias manual saja memicu Vercel Authentication (302) — domain harus
+  resmi menempel di project.
+
 ## 2026-10-09 — Deploy produksi
 
 - Vercel production: **https://prep-truth.vercel.app** (Ready, alias resmi project).

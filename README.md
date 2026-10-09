@@ -4,7 +4,7 @@
 Per daypart, backed by the restaurant's own data, with before/after replay proof.
 Deterministic, in-browser, reproducible — no accounts, no database, nothing leaves the page.
 
-**Live:** [prep-truth.vercel.app](https://prep-truth.vercel.app) *(works fully offline — no API key needed for the demo)*
+**Live:** [prep-truth.ricothen.com](https://prep-truth.ricothen.com) *(works fully offline — no API key needed for the demo)*
 
 ## Why
 
