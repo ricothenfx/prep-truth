@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --ink: #1c1c1a;
+  --muted: #6f6f68;
+  --line: #e4e4dd;
+  --accent: #e4572e;
+  --accent-ink: #ffffff;
+  --good: #2f9e44;
+  --warn: #d9480f;
+}
+
+.dark {
+  --bg: #141519;
+  --surface: #1e2026;
+  --ink: #f0f0ea;
+  --muted: #9a9a92;
+  --line: #2e3138;
+  --accent: #ff6a3d;
+  --accent-ink: #141519;
+  --good: #51cf66;
+  --warn: #ff922b;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-background text-ink font-sans antialiased;
+  font-feature-settings: "tnum" 1;
+}
