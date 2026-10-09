@@ -1,5 +1,13 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — 10 sampel + panel data live di produksi
+
+- Commit `35af322` push ke main, deploy Vercel production (`prep-truth-5gqvz5vcr`).
+- Verifikasi live: halaman 200 di `prep-truth.ricothen.com`; `/api/llm` input tak
+  valid → fallback offline benar; e2e penuh 5/5 dijalankan langsung melawan
+  produksi (picker, mapping Jerman, panel data unduh/edit/reset/sesi-saja, dark
+  mode) — semua hijau.
+
 ## 2026-10-09 — 10 sampel restoran + panel data CSV in-app (D15, D16)
 
 - Sampel contoh dari 1 menjadi **10 restoran sintetis Berlin** dengan kondisi data
