@@ -1,5 +1,17 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — AI aktif di produksi
+
+- `LLM_API_KEY` terpasang di env Vercel **production** (secret, tidak pernah melalui
+  chat/log); produksi di-redeploy.
+- Verifikasi live: `POST /api/llm` mode `map` dengan header berbahasa Indonesia
+  (`waktu_terima`, `siap_dapur`, `kurir_datang`, `kurir_ambil`, `janji_menit`) →
+  `offline:false` + pemetaan lengkap dan benar.
+- E2E diperbarui: badge ringkasan kini menerima "drafted by AI" atau "offline template"
+  (robust untuk kedua mode); 3/3 hijau melawan `https://prep-truth.ricothen.com`.
+- Catatan: env `preview` gagal ditambahkan via CLI (non-blocking — alur deploy hanya
+  production). Key lokal tersalin ke `.env.local` project ini (gitignored).
+
 ## 2026-10-09 — Domain custom
 
 - `https://prep-truth.ricothen.com` live: domain di-assign ke project (`vercel domains

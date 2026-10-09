@@ -18,7 +18,8 @@ test("example dataset flows end to end through all four blocks", async ({ page }
   const beforePct = Number(beforeLate.match(/(\d+)%/)?.[1])
   expect(beforePct).toBeGreaterThan(afterPct)
 
-  await expect(page.getByTestId("summary-card")).toContainText("offline template")
+  const summaryBadge = await page.getByTestId("summary-card").innerText()
+  expect(summaryBadge).toMatch(/drafted by AI|offline template/)
 
   const recEvening = await page.getByTestId("rec-evening").innerText()
   expect(recEvening).toMatch(/\d+ min/)
