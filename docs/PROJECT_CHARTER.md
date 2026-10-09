@@ -95,6 +95,7 @@ masuk daftar tidak-jadi.**
 | D11 | Mapping kolom manual: dropdown per field + auto-guess dari nama header standar; LLM (Fase 2) hanya menyempurnakan usulan. |
 | D12 | Kontrak LLM final: mapping AI hanya mengisi field yang biarkan kosong oleh guess lokal (tidak pernah menimpa); ringkasan AI digagalkan → template offline yang mengutip angka engine yang sama; satu function `api/llm.ts` mode `map`/`report`, response `{offline:true}` bila tanpa key/mock/gagal → klien fallback senyap. |
 | D13 | Angka dataset contoh di README dikunci oleh test (`readme.test.ts`); keterbatasan model replay naif (food cooling naik karena dapur diasumsikan tetap memasak di waktu lama) diungkap jujur di UI + README. |
+| D14 | Payload ringkasan LLM wajib bermuara eksplisit di nama field (`*TotalMinutes` = akumulasi semua order, `*AvgMinutes` = per order) + system prompt melarang konversi satuan; template offline juga mengutip rata-rata per order. Label replay "food cooling*" diberi asterisk yang menunjuk ke penjelasan model naif. |
 
 ## 9. Roadmap — 3 fase pendek
 

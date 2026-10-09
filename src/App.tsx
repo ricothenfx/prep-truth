@@ -89,8 +89,10 @@ export default function App() {
         to: r.recommended,
       })),
       afterPctLate: after.pctLate,
-      riderWaitBefore: verdict.totalRiderWaitMin,
-      riderWaitAfter: after.totalRiderWaitMin,
+      riderWaitTotalMinutesBefore: verdict.totalRiderWaitMin,
+      riderWaitTotalMinutesAfter: after.totalRiderWaitMin,
+      riderWaitAvgMinutesBefore: verdict.total === 0 ? 0 : verdict.totalRiderWaitMin / verdict.total,
+      riderWaitAvgMinutesAfter: verdict.total === 0 ? 0 : after.totalRiderWaitMin / verdict.total,
     }
     void generateSummary(payload).then((result) => {
       if (!cancelled) setSummary(result)

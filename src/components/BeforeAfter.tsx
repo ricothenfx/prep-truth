@@ -25,7 +25,8 @@ export default function BeforeAfter({ before, after }: Props) {
             {fmtPct(before.pctLate)} <span className="text-sm font-medium text-muted">late</span>
           </div>
           <div className="mt-1 text-sm text-muted tabular-nums">
-            riders waiting {fmtMinutes(before.totalRiderWaitMin)} · food cooling {fmtMinutes(before.totalFoodIdleMin)}
+            riders waiting {fmtMinutes(before.totalRiderWaitMin)} · food cooling*{" "}
+            {fmtMinutes(before.totalFoodIdleMin)}
           </div>
         </div>
         <div className="hidden items-center md:flex">
@@ -39,7 +40,8 @@ export default function BeforeAfter({ before, after }: Props) {
             {fmtPct(after.pctLate)} <span className="text-sm font-medium text-muted">late</span>
           </div>
           <div className="mt-1 text-sm text-muted tabular-nums">
-            riders waiting {fmtMinutes(after.totalRiderWaitMin)} · food cooling {fmtMinutes(after.totalFoodIdleMin)}
+            riders waiting {fmtMinutes(after.totalRiderWaitMin)} · food cooling*{" "}
+            {fmtMinutes(after.totalFoodIdleMin)}
           </div>
         </div>
       </div>
@@ -47,9 +49,9 @@ export default function BeforeAfter({ before, after }: Props) {
         Deterministic replay of the same {before.total} orders: rider arrival times are
         re-simulated around the new promise (shifts capped at ±60 min). Late drops by{" "}
         {(lateDrop).toFixed(0)} pp, rider waiting by {fmtMinutes(waitDrop)}. Actual kitchen
-        speed never changes — only the honesty of the promise. Under this naive model food
-        shows longer cooling because riders arrive later while kitchens keep their
-        historical cooking time; kitchens that time cooking to the promise avoid that.
+        speed never changes — only the honesty of the promise. *Cooling rises under this
+        naive model because riders arrive later while kitchens keep their historical
+        cooking time; kitchens that time cooking to the promise avoid that.
       </p>
     </div>
   )

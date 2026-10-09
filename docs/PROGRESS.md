@@ -1,5 +1,20 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — Fix satuan ringkasan AI + label food cooling (D14)
+
+- Bug dari testing live: kalimat AI menulis "average of 3366.93 seconds" — itu
+  **total rider wait dalam menit** (56h 7m = 3367 min), salah satuan & salah makna
+  (bukan rata-rata per order). Akar: payload kirim angka tanpa satuan di nama field,
+  system prompt tidak menyebut unit.
+- Fix: `SummaryPayload` kini `riderWaitTotalMinutesBefore/After` +
+  `riderWaitAvgMinutesBefore/After` (App.tsx hitung rata-rata per order); system
+  prompt `api/llm.ts` melarang konversi satuan dan menjelaskan konvensi penamaan;
+  template offline juga mengutip menit/order. Charter D14.
+- UI: label replay jadi "food cooling*" dengan asterisk ke penjelasan model naif
+  (dapur yang menyesuaikan jadwal masak menghindari kenaikan itu).
+- Verifikasi: typecheck + build + vitest hijau; deploy produksi; e2e 3/3 melawan
+  live; kalimat AI produksi kini mengutip menit total dan menit per order dengan benar.
+
 ## 2026-10-09 — AI aktif di produksi
 
 - `LLM_API_KEY` terpasang di env Vercel **production** (secret, tidak pernah melalui

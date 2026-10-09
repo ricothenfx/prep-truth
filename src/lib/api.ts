@@ -53,8 +53,10 @@ export interface SummaryPayload {
   worstLatePct: number | null
   recommendations: { daypart: string; from: number; to: number | null }[]
   afterPctLate: number
-  riderWaitBefore: number
-  riderWaitAfter: number
+  riderWaitTotalMinutesBefore: number
+  riderWaitTotalMinutesAfter: number
+  riderWaitAvgMinutesBefore: number
+  riderWaitAvgMinutesAfter: number
 }
 
 export async function generateSummary(payload: SummaryPayload): Promise<SummaryResult> {
@@ -92,7 +94,9 @@ export function templateSummary(p: SummaryPayload): string {
   }
   parts.push(
     `Replaying the same orders with these settings, lateness falls to ${p.afterPctLate.toFixed(0)}% ` +
-      `and total rider waiting drops from ${Math.round(p.riderWaitBefore)} to ${Math.round(p.riderWaitAfter)} minutes.`,
+      `and total rider waiting drops from ${Math.round(p.riderWaitTotalMinutesBefore)} to ` +
+      `${Math.round(p.riderWaitTotalMinutesAfter)} minutes — about ` +
+      `${p.riderWaitAvgMinutesBefore.toFixed(1)} to ${p.riderWaitAvgMinutesAfter.toFixed(1)} minutes per order.`,
   )
   return parts.join(" ")
 }
