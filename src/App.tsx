@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import ThemeToggle from "./components/ThemeToggle"
 import UploadPanel from "./components/UploadPanel"
 import MappingPanel from "./components/MappingPanel"
@@ -6,9 +6,11 @@ import VerdictStrip from "./components/VerdictStrip"
 import DaypartChart from "./components/DaypartChart"
 import RecommendationTable from "./components/RecommendationTable"
 import BeforeAfter from "./components/BeforeAfter"
+import SummaryCard from "./components/SummaryCard"
 import { guessMapping, parseCsv, STANDARD_MAPPING } from "./engine/parse"
-import { buildRecommendations, computeVerdict, replay } from "./engine/stats"
+import { buildRecommendations, computeVerdict, daypartLabel, replay } from "./engine/stats"
 import { generateExampleCsv } from "./engine/example"
+import { generateSummary, suggestAiMapping } from "./lib/api"
 import type { Mapping } from "./engine/types"
 
 interface MappingState {
@@ -16,22 +18,46 @@ interface MappingState {
   label: string
   headers: string[]
   mapping: Mapping
+  aiAssisted: boolean
 }
 
 export default function App() {
   const [mappingState, setMappingState] = useState<MappingState | null>(null)
   const [ready, setReady] = useState<{ label: string; text: string; mapping: Mapping } | null>(null)
+  const [summary, setSummary] = useState<{ text: string; source: "ai" | "template" } | null>(null)
 
   const handleText = (text: string, label: string) => {
     const firstLine = text.split("\n")[0]?.trim() ?? ""
     const headers = firstLine ? firstLine.split(",").map((h) => h.trim().replace(/^"|"$/g, "")) : []
+    const local = guessMapping(headers)
     setReady(null)
-    setMappingState({ text, label, headers, mapping: guessMapping(headers) })
+    setSummary(null)
+    setMappingState({ text, label, headers, mapping: local, aiAssisted: false })
+    void suggestAiMapping(headers, text).then((suggestion) => {
+      if (!suggestion) return
+      setMappingState((current) => {
+        if (!current || current.text !== text) return current
+        const merged = { ...current.mapping }
+        let touched = false
+        for (const key of Object.keys(merged) as (keyof Mapping)[]) {
+          if (merged[key] === "" && suggestion.mapping[key] !== "") {
+            merged[key] = suggestion.mapping[key]
+            touched = true
+          }
+        }
+        return touched ? { ...current, mapping: merged, aiAssisted: true } : current
+      })
+    })
   }
 
   const handleExample = () => {
     setMappingState(null)
-    setReady({ label: "Kreuzberg Kanteen — 30 days of synthetic example orders", text: generateExampleCsv(), mapping: STANDARD_MAPPING })
+    setSummary(null)
+    setReady({
+      label: "Kreuzberg Kanteen — 30 days of synthetic example orders",
+      text: generateExampleCsv(),
+      mapping: STANDARD_MAPPING,
+    })
   }
 
   const report = useMemo(
@@ -44,6 +70,35 @@ export default function App() {
     () => (report && recommendations ? replay(report.orders, recommendations) : null),
     [report, recommendations],
   )
+
+  useEffect(() => {
+    if (!report || !verdict || !recommendations || !after) return
+    let cancelled = false
+    const stressed = recommendations
+      .filter((r) => r.n >= 5)
+      .sort((a, b) => b.pctLate - a.pctLate)[0]
+    const payload = {
+      total: verdict.total,
+      pctLate: verdict.pctLate,
+      medianPrep: verdict.medianPrep,
+      worstDaypart: stressed ? daypartLabel(stressed.daypart) : null,
+      worstLatePct: stressed ? stressed.pctLate : null,
+      recommendations: recommendations.map((r) => ({
+        daypart: daypartLabel(r.daypart),
+        from: r.medianPromised,
+        to: r.recommended,
+      })),
+      afterPctLate: after.pctLate,
+      riderWaitBefore: verdict.totalRiderWaitMin,
+      riderWaitAfter: after.totalRiderWaitMin,
+    }
+    void generateSummary(payload).then((result) => {
+      if (!cancelled) setSummary(result)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [report, verdict, recommendations, after])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -96,7 +151,8 @@ export default function App() {
             <MappingPanel
               headers={mappingState.headers}
               mapping={mappingState.mapping}
-              onChange={(m) => setMappingState({ ...mappingState, mapping: m })}
+              aiAssisted={mappingState.aiAssisted}
+              onChange={(m) => setMappingState({ ...mappingState, mapping: m, aiAssisted: mappingState.aiAssisted })}
               onConfirm={() => {
                 setReady({ label: mappingState.label, text: mappingState.text, mapping: mappingState.mapping })
                 setMappingState(null)
@@ -133,6 +189,7 @@ export default function App() {
                   <BeforeAfter before={verdict} after={after} />
                 </div>
                 <RecommendationTable recommendations={recommendations} />
+                {summary && <SummaryCard text={summary.text} source={summary.source} />}
               </>
             )}
           </section>

@@ -3,6 +3,7 @@ import type { Mapping } from "../engine/types"
 interface Props {
   headers: string[]
   mapping: Mapping
+  aiAssisted?: boolean
   onChange: (m: Mapping) => void
   onConfirm: () => void
 }
@@ -15,7 +16,7 @@ const FIELDS: { key: keyof Mapping; label: string; hint: string }[] = [
   { key: "promisedPrepMin", label: "Promised prep time", hint: "minutes (number)" },
 ]
 
-export default function MappingPanel({ headers, mapping, onChange, onConfirm }: Props) {
+export default function MappingPanel({ headers, mapping, aiAssisted, onChange, onConfirm }: Props) {
   const complete = FIELDS.every((f) => mapping[f.key] !== "")
 
   return (
@@ -23,6 +24,17 @@ export default function MappingPanel({ headers, mapping, onChange, onConfirm }: 
       <h2 className="text-base font-semibold">Match your columns</h2>
       <p className="mt-1 text-sm text-muted">
         Pick which column in your file holds each piece of information.
+        {aiAssisted && (
+          <>
+            {" "}
+            <span
+              className="ml-1 rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium text-accent-ink"
+              data-testid="ai-assisted-badge"
+            >
+              suggested by AI — double-check
+            </span>
+          </>
+        )}
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {FIELDS.map((f) => (

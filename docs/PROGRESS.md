@@ -1,5 +1,19 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — Fase 2 selesai
+
+- `api/llm.ts` — satu serverless function Vercel, dua mode, tanpa SDK (fetch + AbortSignal):
+  - `map`: headers + 3 baris contoh → JSON `{"mapping":{...}}`; divalidasi (semua nilai
+    string ∈ headers, 5 field lengkap) → gagal `{offline:true}`.
+  - `report`: payload angka engine → `{"summary":"..."}` (40–1500 char) → gagal offline.
+  - Tanpa `LLM_API_KEY` atau `MOCK_MODE=true` → langsung offline. Key hanya di server.
+- Klien `src/lib/api.ts`: `suggestAiMapping` (hanya mengisi field yang kosong dari guess
+  lokal — charter D12) + `generateSummary` (AI → fallback template yang mengutip angka
+  yang sama). Timeout klien 20/30 s, gagal = senyap ke offline.
+- UI: badge "suggested by AI — double-check" di MappingPanel; SummaryCard dengan badge
+  sumber ("drafted by AI" vs "offline template — no API key configured").
+- Typecheck + build + 15/15 vitest hijau. Bundle 61,8 KB gzip.
+
 ## 2026-10-09 — Fase 1 selesai
 
 - Scaffold Vite 5 + React 18 + TS strict + Tailwind 3; design tokens light/dark di
@@ -20,4 +34,4 @@
 
 ## Berikutnya
 
-- Fase 2: `api/llm.ts` (mode map/report), MOCK_MODE, integrasi mapper + ringkasan naratif.
+- Fase 3: Playwright e2e otonom, README dengan angka reproducible, deploy Vercel.

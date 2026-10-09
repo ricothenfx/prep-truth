@@ -93,6 +93,7 @@ masuk daftar tidak-jadi.**
 | D9 | Model replay: waktu datang rider di-simulasi ulang dengan menggeser jadwal datang sebesar delta setting lama→baru (batas ±60 menit); kecepatan dapur tidak berubah. |
 | D10 | Data contoh: 30 hari berakhir 2026-09-30, seed 42, ~3% baris rusak (uji lewati-jujur), pola rush siap/malam. |
 | D11 | Mapping kolom manual: dropdown per field + auto-guess dari nama header standar; LLM (Fase 2) hanya menyempurnakan usulan. |
+| D12 | Kontrak LLM final: mapping AI hanya mengisi field yang biarkan kosong oleh guess lokal (tidak pernah menimpa); ringkasan AI digagalkan → template offline yang mengutip angka engine yang sama; satu function `api/llm.ts` mode `map`/`report`, response `{offline:true}` bila tanpa key/mock/gagal → klien fallback senyap. |
 
 ## 9. Roadmap — 3 fase pendek
 
@@ -119,5 +120,5 @@ tidak ada fitur di luar charter.
 ## 10. Status
 
 - [x] Fase 1 — engine + empat blok: selesai (vitest 15/15, typecheck + build hijau)
-- [ ] Fase 2 — LLM layer
+- [x] Fase 2 — LLM layer: selesai (api/llm.ts + mapper AI + ringkasan; fallback offline teruji)
 - [ ] Fase 3 — halus + README + live
