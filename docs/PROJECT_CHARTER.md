@@ -94,6 +94,7 @@ masuk daftar tidak-jadi.**
 | D10 | Data contoh: 30 hari berakhir 2026-09-30, seed 42, ~3% baris rusak (uji lewati-jujur), pola rush siap/malam. |
 | D11 | Mapping kolom manual: dropdown per field + auto-guess dari nama header standar; LLM (Fase 2) hanya menyempurnakan usulan. |
 | D12 | Kontrak LLM final: mapping AI hanya mengisi field yang biarkan kosong oleh guess lokal (tidak pernah menimpa); ringkasan AI digagalkan → template offline yang mengutip angka engine yang sama; satu function `api/llm.ts` mode `map`/`report`, response `{offline:true}` bila tanpa key/mock/gagal → klien fallback senyap. |
+| D13 | Angka dataset contoh di README dikunci oleh test (`readme.test.ts`); keterbatasan model replay naif (food cooling naik karena dapur diasumsikan tetap memasak di waktu lama) diungkap jujur di UI + README. |
 
 ## 9. Roadmap — 3 fase pendek
 
@@ -121,4 +122,4 @@ tidak ada fitur di luar charter.
 
 - [x] Fase 1 — engine + empat blok: selesai (vitest 15/15, typecheck + build hijau)
 - [x] Fase 2 — LLM layer: selesai (api/llm.ts + mapper AI + ringkasan; fallback offline teruji)
-- [ ] Fase 3 — halus + README + live
+- [x] Fase 3 — halus + README + live: selesai (e2e 3/3, CI, README terkunci test; deploy produksi: lihat commit berikutnya)

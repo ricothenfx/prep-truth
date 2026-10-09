@@ -1,5 +1,14 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — Fase 3
+
+- Playwright e2e (3 test, Chromium headless): example end-to-end, messy-CSV mapping
+  flow (12 used / 2 skipped), dark toggle persist — semua hijau.
+- CI: `.github/workflows/ci.yaml` (typecheck → vitest → build → e2e, Node 20).
+- README: angka contoh seed 42 dikunci test `readme.test.ts` (36.7% → 7.2% late,
+  rider wait −77%); honest limitation replay naif diungkap di UI + README (D13).
+- Badge "suggested by AI" + SummaryCard template/AI badge terverifikasi e2e.
+
 ## 2026-10-09 — Fase 2 selesai
 
 - `api/llm.ts` — satu serverless function Vercel, dua mode, tanpa SDK (fetch + AbortSignal):

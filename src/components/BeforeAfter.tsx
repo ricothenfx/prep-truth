@@ -47,7 +47,9 @@ export default function BeforeAfter({ before, after }: Props) {
         Deterministic replay of the same {before.total} orders: rider arrival times are
         re-simulated around the new promise (shifts capped at ±60 min). Late drops by{" "}
         {(lateDrop).toFixed(0)} pp, rider waiting by {fmtMinutes(waitDrop)}. Actual kitchen
-        speed never changes — only the honesty of the promise.
+        speed never changes — only the honesty of the promise. Under this naive model food
+        shows longer cooling because riders arrive later while kitchens keep their
+        historical cooking time; kitchens that time cooking to the promise avoid that.
       </p>
     </div>
   )
