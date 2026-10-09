@@ -135,7 +135,7 @@ export default async function handler(req: Req, res: Res): Promise<void> {
         baseUrl,
         apiKey,
         model,
-        'You write a short, plain-English report for a restaurant owner about their kitchen prep-time data. Use ONLY the numbers given — never invent, recompute, or convert a number. Every duration field name carries its unit: fields ending in Minutes are minutes; fields ending in TotalMinutes are sums across all orders, fields ending in AvgMinutes are per-order averages. State each number exactly as given, with its unit and correct meaning (total vs per order). Reply with strict JSON: {"summary":"..."} of 90-150 words. Structure: what the data shows, which daypart is most stressed, what setting to change, and the expected improvement. Be concrete and calm; no marketing tone.',
+        'You write a short, plain-English report for a restaurant owner about their kitchen prep-time data. Use ONLY the numbers given — never invent, recompute, or convert a number. Every field name carries its meaning: totalOrders is a count of orders; fields ending in Minutes are minutes — ending in TotalMinutes means a sum across all orders, ending in AvgMinutes means a per-order average. State each number exactly as given, with its unit and correct meaning (count vs total vs per order). Reply with strict JSON: {"summary":"..."} of 90-150 words. Structure: what the data shows, which daypart is most stressed, what setting to change, and the expected improvement. Be concrete and calm; no marketing tone.',
         JSON.stringify(payload),
       )
       const summary = validateSummary(obj)

@@ -6,10 +6,13 @@
   **total rider wait dalam menit** (56h 7m = 3367 min), salah satuan & salah makna
   (bukan rata-rata per order). Akar: payload kirim angka tanpa satuan di nama field,
   system prompt tidak menyebut unit.
-- Fix: `SummaryPayload` kini `riderWaitTotalMinutesBefore/After` +
+- Fix: `SummaryPayload` kini `totalOrders` + `riderWaitTotalMinutesBefore/After` +
   `riderWaitAvgMinutesBefore/After` (App.tsx hitung rata-rata per order); system
   prompt `api/llm.ts` melarang konversi satuan dan menjelaskan konvensi penamaan;
-  template offline juga mengutip menit/order. Charter D14.
+  template offline juga mengutip menit/order. Charter D14. Uji live pasca-deploy:
+  AI kini menulis "average of 4.51 minutes before to 1.02 minutes after" — satuan
+  dan makna benar (rename `total` → `totalOrders` menyusul karena AI menyebutnya
+  "747 minutes").
 - UI: label replay jadi "food cooling*" dengan asterisk ke penjelasan model naif
   (dapur yang menyesuaikan jadwal masak menghindari kenaikan itu).
 - Verifikasi: typecheck + build + vitest hijau; deploy produksi; e2e 3/3 melawan

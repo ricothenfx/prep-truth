@@ -78,7 +78,7 @@ export default function App() {
       .filter((r) => r.n >= 5)
       .sort((a, b) => b.pctLate - a.pctLate)[0]
     const payload = {
-      total: verdict.total,
+      totalOrders: verdict.total,
       pctLate: verdict.pctLate,
       medianPrep: verdict.medianPrep,
       worstDaypart: stressed ? daypartLabel(stressed.daypart) : null,

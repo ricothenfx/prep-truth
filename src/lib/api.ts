@@ -46,7 +46,7 @@ export async function suggestAiMapping(headers: string[], csvText: string): Prom
 }
 
 export interface SummaryPayload {
-  total: number
+  totalOrders: number
   pctLate: number
   medianPrep: number
   worstDaypart: string | null
@@ -73,7 +73,7 @@ export function templateSummary(p: SummaryPayload): string {
   const raised = changed.filter((r) => r.to! > r.from)
   const parts: string[] = []
   parts.push(
-    `Across ${p.total} orders, ${p.pctLate.toFixed(0)}% ran past their promised prep time ` +
+    `Across ${p.totalOrders} orders, ${p.pctLate.toFixed(0)}% ran past their promised prep time ` +
       `and the median kitchen took ${Math.round(p.medianPrep)} minutes.`,
   )
   if (p.worstDaypart && p.worstLatePct !== null) {
