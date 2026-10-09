@@ -92,9 +92,12 @@ export function templateSummary(p: SummaryPayload): string {
           : "Your current settings are already ahead of reality in some windows."),
     )
   }
+  const afterLatePct = p.afterPctLate
+  const lateVerb = afterLatePct > p.pctLate ? "rises" : "falls"
+  const waitVerb = p.riderWaitTotalMinutesAfter > p.riderWaitTotalMinutesBefore ? "rises" : "drops"
   parts.push(
-    `Replaying the same orders with these settings, lateness falls to ${p.afterPctLate.toFixed(0)}% ` +
-      `and total rider waiting drops from ${Math.round(p.riderWaitTotalMinutesBefore)} to ` +
+    `Replaying the same orders with these settings, lateness ${lateVerb} to ${afterLatePct.toFixed(0)}% ` +
+      `and total rider waiting ${waitVerb} from ${Math.round(p.riderWaitTotalMinutesBefore)} to ` +
       `${Math.round(p.riderWaitTotalMinutesAfter)} minutes — about ` +
       `${p.riderWaitAvgMinutesBefore.toFixed(1)} to ${p.riderWaitAvgMinutesAfter.toFixed(1)} minutes per order.`,
   )

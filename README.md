@@ -67,7 +67,7 @@ the generator drifts.
 | Food waiting (total) | 2935 min |
 | Recommended settings | morning 20 · lunch 30 · afternoon 15 (keep) · evening 25 min |
 | **Late after replay** | **7.2%** |
-| **Rider waiting after** | **763 min (−77%)** |
+| **Rider waiting after** | **1824 min (−46%)** |
 | Food waiting after (naive model) | 7081 min — see honest limitation below |
 
 Reproduce: `npm test` (the readme test prints the same table and pins these values).
@@ -86,7 +86,9 @@ CSV ──> column mapping (manual dropdowns, AI-assisted)
   food cooling = positive part of `rider_arrived_at − food_ready_at`.
 - "Late" = actual prep exceeded the promised prep time (kitchen-level).
 - Replay model: rider arrival is re-simulated around the new promise (shift capped at
-  ±60 min). Kitchen speed never changes — only the honesty of the promise.
+  ±60 min). Kitchen speed never changes — only the honesty of the promise. The historical
+  handover time is preserved, and a rider whose food is already ready when they arrive
+  leaves immediately instead of absorbing the whole shift.
 
 ## The LLM part (and why it can't break anything)
 
@@ -132,8 +134,9 @@ vercel link && vercel deploy --prod
 ## Honest limitations
 
 - The before/after replay is **naive by design**: riders are re-dispatched around the new
-  promise while kitchens keep cooking at their historical time. Real kitchens that time
-  cooking to the promise avoid most of the extra cooling shown in the naive numbers.
+  promise while kitchens keep cooking at their historical time. Cooling therefore moves
+  with the promise (up when promises are raised, down when they are shortened); real
+  kitchens that time cooking to the promise avoid most of that swing.
 - "Late" means the kitchen exceeded its *prep* promise — route traffic and rider supply
   are outside this tool's scope (and are separated by the event windows used).
 - The example dataset is synthetic (seeded generator, 3% deliberately broken rows to

@@ -7,14 +7,15 @@ interface Props {
 }
 
 function fmtMinutes(total: number): string {
-  const m = Math.round(total)
+  const m = Math.round(Math.abs(total))
   const h = Math.floor(m / 60)
   return h > 0 ? `${h}h ${m % 60}m` : `${m} min`
 }
 
 export default function BeforeAfter({ before, after }: Props) {
-  const lateDrop = before.pctLate - after.pctLate
-  const waitDrop = before.totalRiderWaitMin - after.totalRiderWaitMin
+  const lateDelta = after.pctLate - before.pctLate
+  const waitDelta = after.totalRiderWaitMin - before.totalRiderWaitMin
+  const coolingRises = after.totalFoodIdleMin > before.totalFoodIdleMin
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
       <h2 className="text-base font-semibold">Your same orders, replayed with the new settings</h2>
@@ -47,11 +48,14 @@ export default function BeforeAfter({ before, after }: Props) {
       </div>
       <p className="mt-3 text-xs leading-relaxed text-muted">
         Deterministic replay of the same {before.total} orders: rider arrival times are
-        re-simulated around the new promise (shifts capped at ±60 min). Late drops by{" "}
-        {(lateDrop).toFixed(0)} pp, rider waiting by {fmtMinutes(waitDrop)}. Actual kitchen
-        speed never changes — only the honesty of the promise. *Cooling rises under this
-        naive model because riders arrive later while kitchens keep their historical
-        cooking time; kitchens that time cooking to the promise avoid that.
+        re-simulated around the new promise (shifts capped at ±60 min; handover time is
+        kept, so a rider whose food is already ready leaves right away). Late{" "}
+        {lateDelta <= 0 ? "drops" : "rises"} by {Math.abs(lateDelta).toFixed(0)} pp, rider
+        waiting {waitDelta <= 0 ? "drops" : "rises"} by {fmtMinutes(waitDelta)}. Actual
+        kitchen speed never changes — only the honesty of the promise. *Cooling{" "}
+        {coolingRises ? "rises" : "falls"} under this naive model because riders arrive{" "}
+        {coolingRises ? "later" : "earlier"} while kitchens keep their historical cooking
+        time; kitchens that time cooking to the promise avoid that.
       </p>
     </div>
   )

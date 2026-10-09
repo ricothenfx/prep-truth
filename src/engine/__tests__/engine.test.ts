@@ -197,6 +197,28 @@ describe("replay", () => {
     expect(after.totalRiderWaitMin).toBeCloseTo(25)
     expect(after.totalFoodIdleMin).toBeCloseTo(5)
   })
+
+  it("does not turn food cooling into rider waiting when the promise is shortened", () => {
+    const orders = [
+      order("2026-01-01T12:00:00", "2026-01-01T12:08:00", "2026-01-01T12:30:00", "2026-01-01T12:32:00", 25),
+    ]
+    const recs = daypartBreakdown(orders).map((s) => ({ ...s, recommended: 10 }))
+    const after = replay(orders, recs)
+    expect(after.pctLate).toBe(0)
+    expect(after.totalRiderWaitMin).toBeCloseTo(2)
+    expect(after.totalFoodIdleMin).toBeCloseTo(7)
+  })
+
+  it("still waits for food when the shortened promise sends the rider earlier", () => {
+    const orders = [
+      order("2026-01-01T12:00:00", "2026-01-01T12:20:00", "2026-01-01T12:35:00", "2026-01-01T12:36:00", 30),
+    ]
+    const recs = daypartBreakdown(orders).map((s) => ({ ...s, recommended: 20 }))
+    const after = replay(orders, recs)
+    expect(after.pctLate).toBe(0)
+    expect(after.totalRiderWaitMin).toBeCloseTo(1)
+    expect(after.totalFoodIdleMin).toBeCloseTo(5)
+  })
 })
 
 describe("generateExampleCsv", () => {

@@ -37,7 +37,7 @@ it("readme numbers (seed 42) stay stable", () => {
   expect(Math.round(verdict.totalFoodIdleMin)).toBe(2935)
   expect(recs.map((r) => r.recommended)).toEqual([20, 30, 15, 25])
   expect(after.pctLate).toBeCloseTo(7.2, 1)
-  expect(Math.round(after.totalRiderWaitMin)).toBe(763)
+  expect(Math.round(after.totalRiderWaitMin)).toBe(1824)
   expect(Math.round(after.totalFoodIdleMin)).toBe(7081)
   expect(generateExampleCsv(42)).toBe(generateExampleCsv(42))
 })

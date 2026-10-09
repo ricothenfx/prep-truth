@@ -113,7 +113,7 @@ export default function App() {
     if (!report || !verdict || !recommendations || !after) return
     let cancelled = false
     const stressed = recommendations
-      .filter((r) => r.n >= 5)
+      .filter((r) => r.n >= 5 && r.pctLate > 0)
       .sort((a, b) => b.pctLate - a.pctLate)[0]
     const payload = {
       totalOrders: verdict.total,

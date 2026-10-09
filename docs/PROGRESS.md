@@ -1,5 +1,34 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — Audit otonom 10 sampel + fix model replay & arah narasi (D17)
+
+- Audit Playwright baru `e2e/all-samples.audit.spec.ts`: memuat ke-10 sampel lewat UI
+  (termasuk alur mapping Jerman), lalu membandingkan SETIAP angka (row report, 4 kartu
+  verdict, 28 sel tabel rekomendasi, panel before/after, replay) dengan implementasi
+  independen di dalam spec — plus invarian (rec ≥ p85, kelipatan 5, floor 10; null hanya
+  saat n<5; used+skipped = baris CSV) dan heuristik kewajaran arah narasi. Hasil
+  pra-fix: 10/10 angka UI = engine (0 ketidaksesuaian), tapi 2 sampel promise-dipangkas
+  (Tempelhof, Schöneberg) memicu tiga bug produk yang kini terkonfirmasi reproduksibel.
+- Bug 1 — replay double-count (`stats.ts`): `pickedUpAt` tidak ikut di-replay sehingga
+  seluruh shift pindah ke tunggu rider (Tempelhof 20h12m → 203h37m = 1212 + Σ|shift|
+  11005 menit, persis). Fix (D17): pickup_baru = max(food_ready, arrival_baru) +
+  handover historis → Tempelhof kini 20h12m → 23h30m, cooling 227h21m → 47h14m. Angka
+  seed 42 berubah terkunci: rider-after 763 → **1824 min (−46%)**; late-after tetap
+  7.2%, food-after tetap 7081. README + `readme.test.ts` diperbarui.
+- Bug 2 — caption before/after (`BeforeAfter.tsx`) kini arah-dinamis: "Late drops/rises
+  by … pp, rider waiting drops/rises by …" dan kalimat cooling "rises/falls … later/
+  earlier" mengikuti arah data (dulu hardcoded "Cooling rises … riders arrive later"
+  dan merender teks negatif "Late drops by -4 pp, rider waiting by -11005 min").
+- Bug 3 — template ringkasan offline (`lib/api.ts`) arah-dinamis ("lateness rises/falls
+  to …, rider waiting rises/drops from …"); system prompt `/api/llm` ditambah larangan
+  membalik arah (kenaikan tidak boleh ditulis "reduce"). Bonus kecil: readout tidak
+  lagi menyebut "most stressed window" saat 0% telat (dulu selalu menyebut Morning 0%).
+- Regression: 2 test engine baru (promise dipangkas tidak mengubah cooling menjadi
+  tunggu rider; rider tetap menunggu bila makanan belum siap saat arrival digeser
+  lebih awal) + gate audit: kenaikan tunggu rider > 50% massa shift = gag.
+- Verifikasi: typecheck + vitest 29/29 + build (66,1 KB gzip) + e2e 6/6 hijau lokal;
+  audit 10/10 sampel 0 temuan 0 JS error. Charter §8 D17.
+
 ## 2026-10-09 — 10 sampel + panel data live di produksi
 
 - Commit `35af322` push ke main, deploy Vercel production (`prep-truth-5gqvz5vcr`).

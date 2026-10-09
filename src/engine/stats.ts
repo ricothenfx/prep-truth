@@ -121,7 +121,8 @@ function replayOrder(o: Order, rec: number | null): { riderWait: number; foodIdl
   }
   const shift = Math.min(Math.max(rec - o.promisedPrepMin, -MAX_SHIFT_MIN), MAX_SHIFT_MIN)
   const simArrival = new Date(o.riderArrivedAt.getTime() + shift * 60000)
-  const riderWait = Math.max(0, (o.pickedUpAt.getTime() - simArrival.getTime()) / 60000)
+  const handoverMin = Math.max(0, (o.pickedUpAt.getTime() - Math.max(o.foodReadyAt.getTime(), o.riderArrivedAt.getTime())) / 60000)
+  const riderWait = Math.max(0, (o.foodReadyAt.getTime() - simArrival.getTime()) / 60000) + handoverMin
   const foodIdle = Math.max(0, (simArrival.getTime() - o.foodReadyAt.getTime()) / 60000)
   return { riderWait, foodIdle, late: prep > rec }
 }
