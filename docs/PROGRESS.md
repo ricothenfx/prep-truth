@@ -1,5 +1,12 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — Deploy produksi
+
+- Vercel production: **https://prep-truth.vercel.app** (Ready, alias resmi project).
+- Verifikasi live: halaman 200; `POST /api/llm` tanpa key → `{offline:true}`; e2e
+  Playwright dijalankan langsung melawan URL produksi (E2E_BASE_URL) → 3/3 hijau.
+- playwright.config kini mendukung `E2E_BASE_URL` untuk smoke-test produksi.
+
 ## 2026-10-09 — Fase 3
 
 - Playwright e2e (3 test, Chromium headless): example end-to-end, messy-CSV mapping
