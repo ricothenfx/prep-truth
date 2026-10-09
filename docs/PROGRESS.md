@@ -28,6 +28,10 @@
   lebih awal) + gate audit: kenaikan tunggu rider > 50% massa shift = gag.
 - Verifikasi: typecheck + vitest 29/29 + build (66,1 KB gzip) + e2e 6/6 hijau lokal;
   audit 10/10 sampel 0 temuan 0 JS error. Charter §8 D17.
+- Deploy produksi `c79a2a7` (Ready 29 d): domain 200 + bundle baru terverifikasi;
+  e2e standar 5/5 + audit 10/10 dijalankan langsung melawan
+  `https://prep-truth.ricothen.com` — ringkasan **AI produksi** lolos semua cek
+  angka & arah per sampel (audit 38,7 d, `summary(ai)` × 10).
 
 ## 2026-10-09 — 10 sampel + panel data live di produksi
 

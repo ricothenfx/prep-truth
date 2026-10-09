@@ -254,7 +254,7 @@ async function scrapeAudit(page: Page, id: string, name: string, csv: string): P
   }
 
   const summaryCard = page.getByTestId("summary-card")
-  await expect(summaryCard).toBeVisible({ timeout: 20000 })
+  await expect(summaryCard).toBeVisible({ timeout: 45000 })
   const summaryText = await summaryCard.locator("p").innerText()
   const summaryBadge = (await summaryCard.innerText()).includes("drafted by AI") ? "ai" : "template"
 
@@ -426,7 +426,7 @@ async function scrapeAudit(page: Page, id: string, name: string, csv: string): P
 const REPORT = "test-results/audit-report.json"
 
 test("audit all sample restaurants against independent computation", async ({ page }) => {
-  test.setTimeout(600000)
+  test.setTimeout(process.env.E2E_BASE_URL ? 1200000 : 600000)
   fs.mkdirSync("test-results", { recursive: true })
   const reports: SampleReport[] = []
   const failures: string[] = []
