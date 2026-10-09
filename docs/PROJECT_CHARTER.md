@@ -27,9 +27,10 @@ Root cause: satu angka statis vs variasi nyata per daypart, ukuran order, dan je
 
 ## 4. Solusi — satu halaman, empat blok
 
-1. **Upload CSV** (atau "Load example" — data contoh resto Berlin, demo langsung hidup).
+1. **Upload CSV** (atau pilih 1 dari 10 sampel restoran — kondisi data beragam, lihat D15).
    LLM memetakan kolom CSV apa pun ke 5 kolom standar (Opsi A, §6); user konfirmasi
-   via dropdown, tidak pernah auto-apply.
+   via dropdown, tidak pernah auto-apply. Dataset apa pun bisa dilihat, diedit, diunduh
+   di panel data in-app (D16 — edit hanya untuk sesi tersebut).
 2. **Verdict strip** — 4 angka: % telat, median prep aktual, total menit tunggu rider,
    total menit makanan menganggur.
 3. **Rekomendasi** — tabel per daypart (pagi/siang/sore/malam): setting lama → angka
@@ -96,6 +97,8 @@ masuk daftar tidak-jadi.**
 | D12 | Kontrak LLM final: mapping AI hanya mengisi field yang biarkan kosong oleh guess lokal (tidak pernah menimpa); ringkasan AI digagalkan → template offline yang mengutip angka engine yang sama; satu function `api/llm.ts` mode `map`/`report`, response `{offline:true}` bila tanpa key/mock/gagal → klien fallback senyap. |
 | D13 | Angka dataset contoh di README dikunci oleh test (`readme.test.ts`); keterbatasan model replay naif (food cooling naik karena dapur diasumsikan tetap memasak di waktu lama) diungkap jujur di UI + README. |
 | D14 | Payload ringkasan LLM wajib self-describing: `totalOrders` = jumlah order, `*TotalMinutes` = akumulasi semua order, `*AvgMinutes` = per order; system prompt melarang konversi satuan; template offline juga mengutip rata-rata per order. Label replay "food cooling*" diberi asterisk yang menunjuk ke penjelasan model naif. |
+| D15 | Data contoh: 10 profil restoran sintetis deklaratif di `src/data/restaurants.ts` (generator seeded konfigurasi, RNG bersama `src/data/rng.ts`); tiap profil mengunci satu kondisi data reviewer — baseline (seed 42, angka README tetap terkunci), terkalibrasi, pesimis, buka-malam-saja, data kecil (<5 order/daypart), kolom non-standar (lewat alur mapping), ~15% baris kotor (3 alasan skip), variansi ekstrem, format campur POS lama (UTC/lokal/milidetik + duplikat), volume besar (~2rb order). Kondisi dikunci test `restaurants.test.ts`. |
+| D16 | Panel data CSV in-app di halaman hasil: lihat, edit, terapkan (re-run analisis), reset ke default, unduh file CSV. Edit hanya hidup dalam sesi browser (state memori — tanpa localStorage/backend); sample selalu regenerasi dari seed aslinya di kunjungan baru. Unduhan = teks yang tampil di editor (nama file dari profil/unggahan). |
 
 ## 9. Roadmap — 3 fase pendek
 

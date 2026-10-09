@@ -1,5 +1,32 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-09 — 10 sampel restoran + panel data CSV in-app (D15, D16)
+
+- Sampel contoh dari 1 menjadi **10 restoran sintetis Berlin** dengan kondisi data
+  berbeda untuk reviewer: baseline (Kreuzberg, seed 42 tetap terkunci), terkalibrasi
+  (3.8% telat, rekomendasi ±0), pesimis (0% telat, rekomendasi turun 25→10),
+  buka-malam-saja (3 daypart kosong), data kecil (12 order — 3 daypart "too few
+  orders"), kolom Jerman (alur mapping), ~15% baris kotor (3 alasan skip muncul),
+  variansi ekstrem (88.8% telat, rekomendasi sampai 50 min), format campur POS lama
+  (UTC/lokal/milidetik + janji desimal + baris duplikat), dan volume besar (1.952
+  order / 45 hari). Profil deklaratif + generator konfigurasi di
+  `src/data/restaurants.ts`, RNG bersama `src/data/rng.ts` (`engine/example.ts`
+  direfactor memakainya — angka seed 42 terverifikasi identik). Kondisi tiap sampel
+  dikunci test baru `restaurants.test.ts` (11 test).
+- **Panel data CSV in-app** (`CsvDataPanel`): data di balik angka bisa dibuka, diedit
+  langsung (textarea), di-apply (analisis re-run instan), di-reset ke default, dan
+  diunduh sebagai file CSV. Edit hanya hidup di sesi browser — state memori, tanpa
+  localStorage/backend; kunjungan baru selalu dapat data seed asli (charter D16).
+- **Sample picker** (`SamplePicker`): grid 10 kartu (nama, tagline, ukuran, kondisi
+  uji). Sampel ber-header standar langsung ke hasil; sampel kolom Jerman masuk alur
+  mapping seperti upload. Pemilih bisa dibuka dari landing maupun halaman hasil.
+- E2E diperbarui + ditambah (5 test): alur picker baseline, mapping sampel Jerman
+  (364 order), panel data (lihat → unduh `kreuzberg-kanteen.csv` → edit 2 order
+  valid + 1 rusak → apply → reset → 747 order → reload = kembali landing).
+- Verifikasi: typecheck + vitest 27/27 + build (66,0 KB gzip) + e2e 5/5 hijau lokal
+  terhadap build preview. Doc: README bagian "Sample restaurants", charter §4/§8
+  (D15, D16).
+
 ## 2026-10-09 — Fix satuan ringkasan AI + label food cooling (D14)
 
 - Bug dari testing live: kalimat AI menulis "average of 3366.93 seconds" — itu

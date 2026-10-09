@@ -20,8 +20,11 @@ The root cause: one static number versus reality that varies by daypart, basket 
 
 ## What you get — one page, four blocks
 
-1. **Upload CSV** (or load a 747-order synthetic example from a fictional Berlin canteen).
-   Column names don't match? An AI mapper suggests the mapping; you confirm via dropdowns.
+1. **Upload CSV** (or pick one of **10 sample restaurants**, each with a different data
+   condition). Column names don't match? An AI mapper suggests the mapping; you confirm
+   via dropdowns. Every dataset — uploaded or sample — can be **viewed, edited, and
+   downloaded** in the in-page data panel; edits re-run the analysis instantly and last
+   for the browser session only (a fresh visit always gets the original seeded data).
 2. **Verdict strip** — % of orders late at the kitchen, median actual prep, total rider
    waiting, total food cooling.
 3. **Recommended settings** — per daypart: the **p85 of actual prep, rounded up to 5 min**
@@ -30,6 +33,24 @@ The root cause: one static number versus reality that varies by daypart, basket 
    waiting, before versus after.
 5. **Plain-English readout** — a short paragraph drafted from the computed numbers
    (AI when configured; an offline template quoting the same numbers otherwise).
+
+## Sample restaurants — ten data conditions to test
+
+All synthetic, generated in the browser from fixed seeds (`src/data/restaurants.ts`).
+Each condition is locked by `src/data/__tests__/restaurants.test.ts`.
+
+| Restaurant | Data condition | What a reviewer can test |
+|---|---|---|
+| Kreuzberg Kanteen | optimistic promises — 36.7% late (the original locked seed-42 dataset) | the full baseline flow, recommendations going up |
+| Mitte Veggie Room | well-calibrated — 3.8% late | a healthy kitchen; recommendations stay within ±5 min |
+| Tempelhof Pizza Studio | pessimistic promises — 0% late, food cools | recommendations going **down** (25→10, 35→15) |
+| Neukölln Spätkauf Döner | night-only kitchen | empty dayparts, one small recommendation |
+| Charlottenburg Kaffeewerk | 12 orders in 2 days | "too few orders" guards for 3 of 4 dayparts |
+| Prenzlauer Bio-Brunch | German POS column names | the column-mapping flow (AI suggestion + manual confirm) |
+| Friedrichshain Burger Depot | ~15% broken rows | honest skip accounting — all three skip reasons appear |
+| Wedding Ramen Lab | wild prep variance — 88.8% late | extreme recommendations (up to 50 min) and replay shift caps |
+| Schöneberg Altbau Küche | legacy export: UTC/local/millis timestamps, decimal promises, duplicate rows | messy-but-parseable formats, daypart skew from UTC rows |
+| Moabit Mega Kitchen | 1,952 orders over 45 days | scale: generation, parsing and rendering stay snappy |
 
 ## Measured results (synthetic example dataset, seed 42 — locked by test)
 

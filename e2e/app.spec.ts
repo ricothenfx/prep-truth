@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test"
 test("example dataset flows end to end through all four blocks", async ({ page }) => {
   await page.goto("/")
   await page.getByTestId("load-example").click()
+  await page.getByTestId("sample-grid").waitFor()
+  await page.getByTestId("sample-card-kreuzberg-kanteen").click()
 
   await expect(page.getByTestId("results")).toBeVisible()
   await expect(page.getByTestId("verdict-late")).toContainText("%")
@@ -40,6 +42,60 @@ test("messy CSV goes through the column mapping flow", async ({ page }) => {
   await expect(page.getByTestId("results")).toBeVisible()
   await expect(page.getByTestId("row-report")).toContainText("12 orders analyzed")
   await expect(page.getByTestId("row-report")).toContainText("2 rows skipped")
+})
+
+test("messy sample restaurant goes through the column mapping flow", async ({ page }) => {
+  await page.goto("/")
+  await page.getByTestId("load-example").click()
+  await page.getByTestId("sample-card-prenzlauer-bio-brunch").click()
+
+  await expect(page.getByTestId("map-acceptedAt")).toBeVisible()
+  await page.getByTestId("map-acceptedAt").selectOption("annahme_zeit")
+  await page.getByTestId("map-foodReadyAt").selectOption("fertig_um")
+  await page.getByTestId("map-riderArrivedAt").selectOption("kurir_da")
+  await page.getByTestId("map-pickedUpAt").selectOption("kurir_weg")
+  await page.getByTestId("map-promisedPrepMin").selectOption("zusage_min")
+  await page.getByTestId("mapping-confirm").click()
+
+  await expect(page.getByTestId("results")).toBeVisible()
+  await expect(page.getByTestId("row-report")).toContainText("364 orders analyzed")
+})
+
+test("sample data panel: view, download, edit, reset — session only", async ({ page }) => {
+  await page.goto("/")
+  await page.getByTestId("load-example").click()
+  await page.getByTestId("sample-card-kreuzberg-kanteen").click()
+  await expect(page.getByTestId("results")).toBeVisible()
+
+  await page.getByTestId("data-panel-toggle").click()
+  const editor = page.getByTestId("data-editor")
+  await expect(editor).toContainText("order_id,accepted_at")
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("data-download").click(),
+  ])
+  expect(download.suggestedFilename()).toBe("kreuzberg-kanteen.csv")
+
+  const editedCsv = [
+    "order_id,accepted_at,food_ready_at,rider_arrived_at,picked_up_at,promised_prep_min",
+    "A,2026-09-01T12:00:00,2026-09-01T12:20:00,2026-09-01T12:25:00,2026-09-01T12:30:00,15",
+    "B,2026-09-01T12:30:00,2026-09-01T12:45:00,2026-09-01T12:50:00,2026-09-01T13:00:00,15",
+    "C,,,,,,,,,",
+  ].join("\n")
+  await editor.fill(editedCsv)
+  await page.getByTestId("data-apply").click()
+
+  await expect(page.getByTestId("row-report")).toContainText("2 orders analyzed")
+  await expect(page.getByTestId("row-report")).toContainText("1 rows skipped")
+  await expect(page.getByTestId("data-panel")).toContainText("edited — this session only")
+
+  await page.getByTestId("data-reset").click()
+  await expect(page.getByTestId("row-report")).toContainText("747 orders analyzed")
+  await expect(page.getByTestId("data-panel")).not.toContainText("edited — this session only")
+
+  await page.reload()
+  await expect(page.getByTestId("results")).not.toBeVisible()
 })
 
 test("dark mode toggles and persists across reload", async ({ page }) => {

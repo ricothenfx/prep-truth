@@ -7,32 +7,58 @@ import DaypartChart from "./components/DaypartChart"
 import RecommendationTable from "./components/RecommendationTable"
 import BeforeAfter from "./components/BeforeAfter"
 import SummaryCard from "./components/SummaryCard"
+import SamplePicker from "./components/SamplePicker"
+import CsvDataPanel from "./components/CsvDataPanel"
 import { guessMapping, parseCsv, STANDARD_MAPPING } from "./engine/parse"
 import { buildRecommendations, computeVerdict, daypartLabel, replay } from "./engine/stats"
-import { generateExampleCsv } from "./engine/example"
+import { getSample } from "./data/restaurants"
 import { generateSummary, suggestAiMapping } from "./lib/api"
 import type { Mapping } from "./engine/types"
 
 interface MappingState {
   text: string
   label: string
+  filename: string
   headers: string[]
   mapping: Mapping
   aiAssisted: boolean
+  sampleId?: string
+}
+
+interface ReadyState {
+  label: string
+  text: string
+  filename: string
+  mapping: Mapping
+  sampleId?: string
+  defaultText?: string
+}
+
+function toCsvName(label: string): string {
+  return `${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}.csv`
 }
 
 export default function App() {
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [mappingState, setMappingState] = useState<MappingState | null>(null)
-  const [ready, setReady] = useState<{ label: string; text: string; mapping: Mapping } | null>(null)
+  const [ready, setReady] = useState<ReadyState | null>(null)
   const [summary, setSummary] = useState<{ text: string; source: "ai" | "template" } | null>(null)
 
-  const handleText = (text: string, label: string) => {
+  const handleText = (text: string, label: string, filename?: string, sampleId?: string) => {
     const firstLine = text.split("\n")[0]?.trim() ?? ""
     const headers = firstLine ? firstLine.split(",").map((h) => h.trim().replace(/^"|"$/g, "")) : []
     const local = guessMapping(headers)
     setReady(null)
     setSummary(null)
-    setMappingState({ text, label, headers, mapping: local, aiAssisted: false })
+    setMappingState({
+      text,
+      label,
+      filename: filename ?? toCsvName(label),
+      headers,
+      mapping: local,
+      aiAssisted: false,
+      sampleId,
+    })
     void suggestAiMapping(headers, text).then((suggestion) => {
       if (!suggestion) return
       setMappingState((current) => {
@@ -50,14 +76,26 @@ export default function App() {
     })
   }
 
-  const handleExample = () => {
-    setMappingState(null)
+  const handleSample = (id: string) => {
+    const sample = getSample(id)
+    if (!sample) return
+    const text = sample.generate()
+    setPickerOpen(false)
     setSummary(null)
-    setReady({
-      label: "Kreuzberg Kanteen — 30 days of synthetic example orders",
-      text: generateExampleCsv(),
-      mapping: STANDARD_MAPPING,
-    })
+    if (sample.messy) {
+      handleText(text, sample.label, sample.filename, sample.id)
+    } else {
+      setMappingState(null)
+      setReady({
+        label: sample.label,
+        text,
+        filename: sample.filename,
+        mapping: STANDARD_MAPPING,
+        sampleId: sample.id,
+        defaultText: text,
+      })
+    }
+    window.scrollTo({ top: 0 })
   }
 
   const report = useMemo(
@@ -122,7 +160,13 @@ export default function App() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-        {!mappingState && !ready && (
+        {pickerOpen && (
+          <div className="mb-10">
+            <SamplePicker onSelect={handleSample} onCancel={() => setPickerOpen(false)} />
+          </div>
+        )}
+
+        {!pickerOpen && !mappingState && !ready && (
           <section className="py-6">
             <h1 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
               The prep-time numbers your kitchen actually runs on.
@@ -133,7 +177,7 @@ export default function App() {
               get settings per daypart backed by your own data — with before/after proof.
             </p>
             <div className="mt-8">
-              <UploadPanel onText={handleText} onExample={handleExample} />
+              <UploadPanel onText={handleText} onExample={() => setPickerOpen(true)} />
             </div>
           </section>
         )}
@@ -156,7 +200,14 @@ export default function App() {
               aiAssisted={mappingState.aiAssisted}
               onChange={(m) => setMappingState({ ...mappingState, mapping: m, aiAssisted: mappingState.aiAssisted })}
               onConfirm={() => {
-                setReady({ label: mappingState.label, text: mappingState.text, mapping: mappingState.mapping })
+                setReady({
+                  label: mappingState.label,
+                  text: mappingState.text,
+                  filename: mappingState.filename,
+                  mapping: mappingState.mapping,
+                  sampleId: mappingState.sampleId,
+                  defaultText: mappingState.sampleId !== undefined ? mappingState.text : undefined,
+                })
                 setMappingState(null)
               }}
             />
@@ -175,8 +226,20 @@ export default function App() {
                   )}
                 </p>
               </div>
-              <UploadPanel compact onText={handleText} onExample={handleExample} />
+              <UploadPanel compact onText={handleText} onExample={() => setPickerOpen(true)} />
             </div>
+
+            <CsvDataPanel
+              text={ready.text}
+              defaultText={ready.defaultText}
+              filename={ready.filename}
+              onApply={(t) => setReady({ ...ready, text: t })}
+              onReset={
+                ready.defaultText !== undefined
+                  ? () => setReady({ ...ready, text: ready.defaultText! })
+                  : undefined
+              }
+            />
 
             {report.used === 0 ? (
               <div className="rounded-2xl border border-warn bg-surface p-6 text-sm">
