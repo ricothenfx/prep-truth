@@ -1,5 +1,33 @@
 # PROGRESS — Prep-Truth
 
+## 2026-10-10 — Guard klaim ringkasan AI + payload 1 desimal + tanda sampel kecil (D18)
+
+- Review manual 10 sampel di produksi menemukan 1 cacat konten nyata: readout AI
+  Schöneberg menulis "expected to **decrease** the percentage of late orders from
+  5.696%" — padahal late **naik** 0% → ~5,7% (hukum kejujuran saat promise pesimis
+  dipangkas; replay box-nya sendiri benar). Lolos audit lama karena heuristik arah
+  hanya mengejar frasa template ("falls to", "drops from") — varian "decrease to X%"
+  tidak tertangkap. Temuan kecil lain: angka 3 desimal ("7.525 minutes") terbaca
+  seperti ribuan; "most stressed daypart is not specified" janggal saat 0% telat;
+  rekomendasi dari 6 order (Charlottenburg Lunch) tampil sama percayanya dengan
+  rekomendasi dari ratusan order.
+- Fix utama — post-check klaim di klien (`src/lib/summaryCheck.ts`, dipakai
+  `generateSummary`): arah late & tunggu rider divalidasi per fragmen kalimat
+  terhadap payload (verba naik/turun), angka yang dikutip (total order, % late)
+  harus cocok; satu saja masalah → seluruh teks AI dibuang, fallback template
+  (badge kembali "offline template"). Payload dibulatkan 1 desimal sebelum dikirim
+  (`roundSummaryPayload`). System prompt `/api/llm` kini memuat aturan arah
+  eksplisit per field + aturan kasus 0% late (tanpa "most stressed" rekaan);
+  template menambah kalimat khusus 0% late.
+- UI: tabel rekomendasi menandai rekomendasi dari n<20 order dengan "\*" + catatan
+  "small sample" di bawah tabel.
+- Audit: spec e2e memakai `summaryClaimProblems` yang sama atas teks yang RENDER
+  (guard klien teruji ujung-ke-ujung), dan temuan kini ikut menggagalkan audit
+  (sebelumnya hanya catatan); toleransi pembulatan total/±1 menit & avg/0,06 untuk
+  efek pembulatan payload.
+- Verifikasi: typecheck + vitest 39/39 (10 test baru: 8 klaim + 2 pembulatan) +
+  build (66,98 KB gzip) + e2e 6/6 lokal dengan audit 10/10, findings 0.
+
 ## 2026-10-09 — Audit otonom 10 sampel + fix model replay & arah narasi (D17)
 
 - Audit Playwright baru `e2e/all-samples.audit.spec.ts`: memuat ke-10 sampel lewat UI

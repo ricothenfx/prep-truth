@@ -2,6 +2,7 @@ import fs from "node:fs"
 import { expect, test, type Page } from "@playwright/test"
 import Papa from "papaparse"
 import { RESTAURANT_SAMPLES } from "../src/data/restaurants"
+import { summaryClaimProblems } from "../src/lib/summaryCheck"
 
 interface IndepOrder {
   acceptedAt: Date
@@ -287,7 +288,7 @@ async function scrapeAudit(page: Page, id: string, name: string, csv: string): P
   for (const s of indep.stats) {
     const uiCells = uiTable[s.daypart] ?? []
     const exp = {
-      n: `${s.n}`,
+      n: `${s.n}${s.n < 20 && s.rec !== null ? " *" : ""}`,
       medianPrep: `${fmtNum0(s.medianPrep)} min`,
       p85: `${fmtNum0(s.p85)} min`,
       promised: `${fmtNum0(s.medianPromised)} min`,
@@ -355,11 +356,15 @@ async function scrapeAudit(page: Page, id: string, name: string, csv: string): P
   }
   const sumProblems: string[] = []
   if (totalM && Number(totalM[1]!.replace(/,/g, "")) !== v.total) sumProblems.push("total orders mismatch")
-  if (fallsM && Number(fallsM[1]!) !== Math.round(indep.after.pctLate)) sumProblems.push("after late % mismatch")
-  if (dropsM && (Number(dropsM[1]!.replace(/,/g, "")) !== Math.round(v.riderWait) || Number(dropsM[2]!.replace(/,/g, "")) !== Math.round(indep.after.riderWait))) {
+  if (fallsM && Math.abs(Number(fallsM[1]!) - Math.round(indep.after.pctLate)) > 1) sumProblems.push("after late % mismatch")
+  if (
+    dropsM &&
+    (Math.abs(Number(dropsM[1]!.replace(/,/g, "")) - Math.round(v.riderWait)) > 1 ||
+      Math.abs(Number(dropsM[2]!.replace(/,/g, "")) - Math.round(indep.after.riderWait)) > 1)
+  ) {
     sumProblems.push("rider wait totals mismatch")
   }
-  if (avgM && (Math.abs(Number(avgM[1]!) - v.riderWait / v.total) > 0.05 || Math.abs(Number(avgM[2]!) - indep.after.riderWait / v.total) > 0.05)) {
+  if (avgM && (Math.abs(Number(avgM[1]!) - v.riderWait / v.total) > 0.06 || Math.abs(Number(avgM[2]!) - indep.after.riderWait / v.total) > 0.06)) {
     sumProblems.push("rider wait averages mismatch")
   }
   if (/falls to/.test(summaryText) && indep.after.pctLate > v.pctLate + 0.5) {
@@ -368,6 +373,15 @@ async function scrapeAudit(page: Page, id: string, name: string, csv: string): P
   if (/drops from/.test(summaryText) && indep.after.riderWait > v.riderWait + 0.5) {
     sumProblems.push(`says "drops" but rider waiting rose ${Math.round(v.riderWait)} → ${Math.round(indep.after.riderWait)} min`)
   }
+  sumProblems.push(
+    ...summaryClaimProblems(summaryText, {
+      totalOrders: v.total,
+      pctLate: v.pctLate,
+      afterPctLate: indep.after.pctLate,
+      riderWaitTotalMinutesBefore: v.riderWait,
+      riderWaitTotalMinutesAfter: indep.after.riderWait,
+    }),
+  )
   if (sumProblems.length > 0) findings.push(`summary(${summaryBadge}): ${sumProblems.join("; ")}`)
 
   const cond = RESTAURANT_SAMPLES.find((s) => s.id === id)!.condition
@@ -436,9 +450,9 @@ test("audit all sample restaurants against independent computation", async ({ pa
     const report = await scrapeAudit(p, sample.id, sample.name, sample.generate())
     await p.close()
     reports.push(report)
-    if (!report.uiMatchesEngine || report.jsErrors.length > 0) {
+    if (!report.uiMatchesEngine || report.jsErrors.length > 0 || report.findings.length > 0) {
       failures.push(
-        `${sample.id}: ${report.uiMatchesEngine ? "" : "UI!=engine; "}${report.jsErrors.join(" | ")}`,
+        `${sample.id}: ${report.uiMatchesEngine ? "" : "UI!=engine; "}${report.findings.length > 0 ? `findings: ${report.findings.join("; ")}; ` : ""}${report.jsErrors.join(" | ")}`,
       )
     }
     fs.writeFileSync(REPORT, JSON.stringify(reports, null, 2))

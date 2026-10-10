@@ -31,7 +31,10 @@ export default function RecommendationTable({ recommendations }: Props) {
             {recommendations.map((r) => (
               <tr key={r.daypart} className="border-b border-line last:border-0">
                 <td className="py-2.5 pr-3 font-medium">{daypartLabel(r.daypart)}</td>
-                <td className="py-2.5 pr-3 tabular-nums text-muted">{r.n}</td>
+                <td className="py-2.5 pr-3 tabular-nums text-muted">
+                  {r.n}
+                  {r.recommended !== null && r.n < 20 ? " *" : ""}
+                </td>
                 <td className="py-2.5 pr-3 tabular-nums">{fmtNum(r.medianPrep, 0)} min</td>
                 <td className="py-2.5 pr-3 tabular-nums">{fmtNum(r.p85Prep, 0)} min</td>
                 <td className="py-2.5 pr-3 tabular-nums">{fmtNum(r.medianPromised, 0)} min</td>
@@ -56,6 +59,12 @@ export default function RecommendationTable({ recommendations }: Props) {
           </tbody>
         </table>
       </div>
+      {recommendations.some((r) => r.recommended !== null && r.n < 20) && (
+        <p className="mt-3 text-xs text-muted">
+          * Computed from fewer than 20 orders — a small sample, so treat this number as a
+          starting point, not a settled setting.
+        </p>
+      )}
     </div>
   )
 }

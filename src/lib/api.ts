@@ -1,5 +1,6 @@
 import Papa from "papaparse"
 import type { Mapping } from "../engine/types"
+import { summaryClaimProblems } from "./summaryCheck"
 
 const FIELDS: (keyof Mapping)[] = ["acceptedAt", "foodReadyAt", "riderArrivedAt", "pickedUpAt", "promisedPrepMin"]
 
@@ -59,13 +60,33 @@ export interface SummaryPayload {
   riderWaitAvgMinutesAfter: number
 }
 
+function round1(x: number): number {
+  return Math.round(x * 10) / 10
+}
+
+export function roundSummaryPayload(p: SummaryPayload): SummaryPayload {
+  return {
+    ...p,
+    pctLate: round1(p.pctLate),
+    medianPrep: round1(p.medianPrep),
+    worstLatePct: p.worstLatePct === null ? null : round1(p.worstLatePct),
+    afterPctLate: round1(p.afterPctLate),
+    riderWaitTotalMinutesBefore: round1(p.riderWaitTotalMinutesBefore),
+    riderWaitTotalMinutesAfter: round1(p.riderWaitTotalMinutesAfter),
+    riderWaitAvgMinutesBefore: round1(p.riderWaitAvgMinutesBefore),
+    riderWaitAvgMinutesAfter: round1(p.riderWaitAvgMinutesAfter),
+  }
+}
+
 export async function generateSummary(payload: SummaryPayload): Promise<SummaryResult> {
-  const data = await postLlm({ mode: "report", payload }, 30000)
+  const rounded = roundSummaryPayload(payload)
+  const data = await postLlm({ mode: "report", payload: rounded }, 30000)
   const text = data && typeof data.summary === "string" ? data.summary.trim() : ""
-  if (text.length >= 40 && text.length <= 1500) {
+  const problems = summaryClaimProblems(text, rounded)
+  if (text.length >= 40 && text.length <= 1500 && problems.length === 0) {
     return { text, source: "ai" }
   }
-  return { text: templateSummary(payload), source: "template" }
+  return { text: templateSummary(rounded), source: "template" }
 }
 
 export function templateSummary(p: SummaryPayload): string {
@@ -76,7 +97,12 @@ export function templateSummary(p: SummaryPayload): string {
     `Across ${p.totalOrders} orders, ${p.pctLate.toFixed(0)}% ran past their promised prep time ` +
       `and the median kitchen took ${Math.round(p.medianPrep)} minutes.`,
   )
-  if (p.worstDaypart && p.worstLatePct !== null) {
+  if (p.pctLate < 0.5) {
+    parts.push(
+      "No daypart is currently late — the promises are longer than the kitchen needs, " +
+        "and the numbers below cut them down to honest sizes.",
+    )
+  } else if (p.worstDaypart && p.worstLatePct !== null) {
     parts.push(
       `${p.worstDaypart} is your most stressed window — ${p.worstLatePct.toFixed(0)}% of those orders went late.`,
     )
