@@ -9,6 +9,7 @@ import BeforeAfter from "./components/BeforeAfter"
 import SummaryCard from "./components/SummaryCard"
 import SamplePicker from "./components/SamplePicker"
 import CsvDataPanel from "./components/CsvDataPanel"
+import QaPage from "./components/QaPage"
 import { guessMapping, parseCsv, STANDARD_MAPPING } from "./engine/parse"
 import { buildRecommendations, computeVerdict, daypartLabel, replay } from "./engine/stats"
 import { getSample } from "./data/restaurants"
@@ -38,7 +39,19 @@ function toCsvName(label: string): string {
   return `${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}.csv`
 }
 
+function useHashRoute(): string {
+  const [hash, setHash] = useState(() => window.location.hash)
+  useEffect(() => {
+    const onChange = () => setHash(window.location.hash)
+    window.addEventListener("hashchange", onChange)
+    return () => window.removeEventListener("hashchange", onChange)
+  }, [])
+  return hash
+}
+
 export default function App() {
+  const route = useHashRoute()
+  const qaView = route.startsWith("#/qa")
   const [pickerOpen, setPickerOpen] = useState(false)
   const [mappingState, setMappingState] = useState<MappingState | null>(null)
   const [ready, setReady] = useState<ReadyState | null>(null)
@@ -110,6 +123,10 @@ export default function App() {
   )
 
   useEffect(() => {
+    if (qaView) window.scrollTo({ top: 0 })
+  }, [qaView])
+
+  useEffect(() => {
     if (!report || !verdict || !recommendations || !after) return
     let cancelled = false
     const stressed = recommendations
@@ -145,21 +162,35 @@ export default function App() {
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-2.5">
-            <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-              <rect width="32" height="32" rx="7" fill="var(--accent)" />
-              <path
-                d="M9 22V10h5.2c2.6 0 4.3 1.6 4.3 4s-1.7 4-4.3 4H12v4H9zm3-6.5h2c1 0 1.6-.6 1.6-1.5s-.6-1.5-1.6-1.5h-2v3z"
-                fill="var(--accent-ink)"
-              />
-              <rect x="20" y="20" width="4" height="2.6" fill="var(--accent-ink)" />
-            </svg>
-            <span className="text-lg font-bold tracking-tight">Prep-Truth</span>
+            <a href="#/" aria-label="Prep-Truth home" className="flex items-center gap-2.5">
+              <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="7" fill="var(--accent)" />
+                <path
+                  d="M9 22V10h5.2c2.6 0 4.3 1.6 4.3 4s-1.7 4-4.3 4H12v4H9zm3-6.5h2c1 0 1.6-.6 1.6-1.5s-.6-1.5-1.6-1.5h-2v3z"
+                  fill="var(--accent-ink)"
+                />
+                <rect x="20" y="20" width="4" height="2.6" fill="var(--accent-ink)" />
+              </svg>
+              <span className="text-lg font-bold tracking-tight">Prep-Truth</span>
+            </a>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-4">
+            <a
+              href={qaView ? "#/" : "#/qa"}
+              className="text-sm text-muted underline decoration-line underline-offset-4 hover:text-ink"
+            >
+              {qaView ? "app" : "Q&A"}
+            </a>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+        {qaView && <QaPage onBack={() => (window.location.hash = "#/")} />}
+
+        {!qaView && (
+          <>
         {pickerOpen && (
           <div className="mb-10">
             <SamplePicker onSelect={handleSample} onCancel={() => setPickerOpen(false)} />
@@ -259,13 +290,15 @@ export default function App() {
             )}
           </section>
         )}
+          </>
+        )}
       </main>
 
       <footer className="border-t border-line">
         <div className="mx-auto max-w-5xl px-4 py-4 text-xs leading-relaxed text-muted">
           Prep-Truth is an independent, open analysis tool. It is not affiliated with any
           delivery platform. Synthetic example data only; your CSVs are processed locally
-          in the browser. © 2026 prep-truth contributors.
+          in the browser. <a href="#/qa" className="underline decoration-line underline-offset-4 hover:text-ink">Q&amp;A</a>. © 2026 prep-truth contributors.
         </div>
       </footer>
     </div>
