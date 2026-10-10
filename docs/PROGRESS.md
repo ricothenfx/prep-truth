@@ -27,6 +27,15 @@
   efek pembulatan payload.
 - Verifikasi: typecheck + vitest 39/39 (10 test baru: 8 klaim + 2 pembulatan) +
   build (66,98 KB gzip) + e2e 6/6 lokal dengan audit 10/10, findings 0.
+- Live terhadap produksi (deploy pertama): guard langsung menangkap 2 inversi arah
+  BARU dari AI produksi — Wedding ("late orders rise to 8.8%" padahal 88,8 → 8,8)
+  dan Moabit ("rise to 0.7%" padahal 9,9 → 0,7) — keduanya digagalkan, fallback
+  template tampil, audit 10/10 tetap hijau. Prompt arah direvisi lagi dengan contoh
+  numerik eksplisit (36,7→7,2 = "falls to"; 0→5,7 = "rises to") + aturan cek-verb-
+  vs-angka, karena versi aturan verbal pertama justru menaikkan frekuensi inversi.
+  Badge template diubah jadi "template — straight from the engine numbers" (alasan
+  fallback kini bisa berupa penolakan klaim, bukan hanya tanpa API key).
+- Verifikasi final: e2e lokal 6/6; audit produksi (E2E_BASE_URL) 10/10 OK 0 temuan.
 
 ## 2026-10-09 — Audit otonom 10 sampel + fix model replay & arah narasi (D17)
 

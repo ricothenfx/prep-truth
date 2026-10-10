@@ -13,7 +13,7 @@ export default function SummaryCard({ text, source }: Props) {
             source === "ai" ? "bg-accent text-accent-ink" : "border border-line text-muted"
           }`}
         >
-          {source === "ai" ? "drafted by AI from your numbers" : "offline template — no API key configured"}
+          {source === "ai" ? "drafted by AI from your numbers" : "template — straight from the engine numbers"}
         </span>
       </div>
       <p className="mt-3 text-sm leading-relaxed">{text}</p>
