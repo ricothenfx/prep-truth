@@ -112,3 +112,24 @@ test("dark mode toggles and persists across reload", async ({ page }) => {
   await page.getByTestId("theme-toggle").click()
   await expect(html).not.toHaveClass(/dark/)
 })
+
+test("logo click returns to the landing page from any view", async ({ page }) => {
+  await page.goto("/")
+  await page.getByTestId("load-example").click()
+  await page.getByTestId("sample-card-kreuzberg-kanteen").click()
+  await expect(page.getByTestId("results")).toBeVisible()
+
+  await page.getByTestId("logo-home").click()
+  await expect(page.getByTestId("results")).not.toBeVisible()
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "The prep-time numbers your kitchen actually runs on.",
+  )
+
+  await page.goto("/#/qa")
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Q&A")
+
+  await page.getByTestId("logo-home").click()
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "The prep-time numbers your kitchen actually runs on.",
+  )
+})

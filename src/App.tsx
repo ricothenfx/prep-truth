@@ -89,6 +89,17 @@ export default function App() {
     })
   }
 
+  const goHome = () => {
+    setPickerOpen(false)
+    setMappingState(null)
+    setReady(null)
+    setSummary(null)
+    if (window.location.hash !== "" && window.location.hash !== "#/") {
+      window.location.hash = "#/"
+    }
+    window.scrollTo({ top: 0 })
+  }
+
   const handleSample = (id: string) => {
     const sample = getSample(id)
     if (!sample) return
@@ -162,7 +173,7 @@ export default function App() {
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-2.5">
-            <a href="#/" aria-label="Prep-Truth home" className="flex items-center gap-2.5">
+            <a href="#/" aria-label="Prep-Truth home" data-testid="logo-home" onClick={goHome} className="flex items-center gap-2.5">
               <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
                 <rect width="32" height="32" rx="7" fill="var(--accent)" />
                 <path
