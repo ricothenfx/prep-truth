@@ -128,4 +128,4 @@ tidak ada fitur di luar charter.
 
 - [x] Fase 1 — engine + empat blok: selesai (vitest 15/15, typecheck + build hijau)
 - [x] Fase 2 — LLM layer: selesai (api/llm.ts + mapper AI + ringkasan; fallback offline teruji)
-- [x] Fase 3 — halus + README + live: selesai — **https://prep-truth.vercel.app** (e2e 3/3 hijau melawan produksi; `/api/llm` fallback offline terverifikasi live)
+- [x] Fase 3 — halus + README + live: selesai — **https://prep-truth.ricothen.com** (e2e 3/3 hijau melawan produksi; `/api/llm` fallback offline terverifikasi live)

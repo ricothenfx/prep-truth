@@ -124,7 +124,9 @@ npm run typecheck && npm run build
 | `LLM_MODEL` | `gpt-4o-mini` | model for both modes |
 | `MOCK_MODE` | `false` | `true` forces the offline path even with a key set |
 
-## Deploy to Vercel
+## Deploy
+
+Production lives at [prep-truth.ricothen.com](https://prep-truth.ricothen.com).
 
 ```bash
 vercel link && vercel deploy --prod

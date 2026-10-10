@@ -144,7 +144,7 @@
 
 ## 2026-10-09 — Deploy produksi
 
-- Vercel production: **https://prep-truth.vercel.app** (Ready, alias resmi project).
+- Produksi live: **https://prep-truth.ricothen.com** (Ready, alias resmi project).
 - Verifikasi live: halaman 200; `POST /api/llm` tanpa key → `{offline:true}`; e2e
   Playwright dijalankan langsung melawan URL produksi (E2E_BASE_URL) → 3/3 hijau.
 - playwright.config kini mendukung `E2E_BASE_URL` untuk smoke-test produksi.
